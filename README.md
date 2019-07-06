@@ -1,6 +1,6 @@
 # slidy_flutter_challenge_01
 
-A new Flutter application.
+A personal challenge inspired by https://www.behance.net/gallery/79989073/Interactive-animation
 
 ## Getting Started
 
