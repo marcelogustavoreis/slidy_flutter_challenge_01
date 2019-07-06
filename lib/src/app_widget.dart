@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:slidy_flutter_challenge_01/src/album/album_page.dart';
 import 'package:slidy_flutter_challenge_01/src/home/home_module.dart';
 
 class AppWidget extends StatelessWidget {
@@ -8,7 +7,6 @@ class AppWidget extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Challenge 01',
       home: HomeModule(),
-//      home: AlbumPage(),
     );
   }
 }

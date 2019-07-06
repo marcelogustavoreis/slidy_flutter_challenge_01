@@ -1,163 +1,150 @@
 import 'package:flutter/material.dart';
 import 'package:slidy_flutter_challenge_01/src/album/album_page.dart';
+import 'package:slidy_flutter_challenge_01/src/home/component/card_song_mixin.dart';
+import 'package:slidy_flutter_challenge_01/src/home/home_page.dart';
 
-double cardSongPositionedTopMin;
-double cardSongPositionedTopMax;
-double cardSongPaddingLeft = 20.0;
-double cardSongPaddingRight = 20.0;
-
-const double cardSongHeight = 70.0;
-
-const double cardSongPlayWidth = 34.0;
-const double cardSongImageWidth = 70.0;
-double cardSongTextWidth;
-
-const double cardSongPaddingLeftMin = 20.0;
-double cardSongPaddingLeftMax;
-
-double borderLeftRadiusLeft = 5.0;
-double borderLeftRadiusRight = 0.0;
-double borderRightRadiusRight = 5.0;
-
-const double cardSongPlayIconPaddingRight = 10.0;
-
-class CardSong extends StatelessWidget {
+class CardSong extends StatelessWidget with CardSongMixin {
+  AnimationController animationFlipController;
+  AnimationController animationListenProgressController;
   Animation animationTransformCircle;
   Animation animationMoveDown;
+  Animation animationFlip;
+  Animation animationListenProgress;
 
-  CardSong({this.animationTransformCircle, this.animationMoveDown});
+  CardSong({
+    @required this.animationTransformCircle,
+    @required this.animationMoveDown,
+    @required this.animationFlip,
+    @required this.animationFlipController,
+    @required this.animationListenProgress,
+    @required this.animationListenProgressController,
+  });
 
   @override
   Widget build(BuildContext context) {
+    setSize(context);
     return AnimatedBuilder(
-      animation: animationMoveDown,
-      builder: (context, child) {
-        return AnimatedBuilder(
-          animation: animationTransformCircle,
-          builder: (context, child) {
-            double cardSongPaddingLeft = calculateCardSongPaddingLeft();
-            double cardSongTextWidth = calculateCardSongTextHeight();
-            double cardSongPlayWidth = calculateCardSongPlayWidth();
-            double cardSongPlayPositionedTop =
-                calculateCardSongPlayPositionedTop();
+        animation: animationListenProgress,
+        builder: (context, child) {
+          return AnimatedBuilder(
+            animation: animationFlip,
+            builder: (context, child) {
+              return AnimatedBuilder(
+                animation: animationMoveDown,
+                builder: (context, child) {
+                  return AnimatedBuilder(
+                    animation: animationTransformCircle,
+                    builder: (context, child) {
+                      double cardSongPaddingLeft = calculateCardSongPaddingLeft(
+                          animationTransformCircle);
+                      double cardSongTextWidth =
+                          calculateCardSongTextHeight(animationTransformCircle);
+                      double cardSongPlayWidth =
+                          calculateCardSongPlayWidth(animationTransformCircle);
+                      double cardSongPlayPositionedTop =
+                          calculateCardSongPlayPositionedTop(animationMoveDown);
+                      double cardTextPlaySize =
+                          cardSongTextWidth + cardSongPlayWidth;
 
-            if (animationTransformCircle.status == AnimationStatus.completed) {
-              setBordersToAnimated();
-            } else if (animationTransformCircle.status ==
-                AnimationStatus.dismissed) {
-              setBordersToDefault();
-            } else if (animationTransformCircle.status ==
-                    AnimationStatus.forward ||
-                animationTransformCircle.status == AnimationStatus.reverse) {
-              setBordersToAnimating();
-            }
+                      if (animationTransformCircle.status ==
+                          AnimationStatus.completed) {
+                        setBordersToAnimated();
+                      } else if (animationTransformCircle.status ==
+                          AnimationStatus.dismissed) {
+                        setBordersToDefault();
+                      } else if (animationTransformCircle.status ==
+                              AnimationStatus.forward ||
+                          animationTransformCircle.status ==
+                              AnimationStatus.reverse) {
+                        setBordersToAnimating();
+                      }
 
-            if (animationMoveDown.value > 0) {
-              setBordersToAnimated();
-            }
+                      if (animationMoveDown.value > 0) {
+                        setBordersToAnimated();
+                      }
 
-            return Positioned(
-              top: cardSongPlayPositionedTop,
-              left: cardSongPaddingLeft,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Transform.rotate(
-                    angle: animationMoveDown.value * -6.3,
-                    child: CardSongImage(),
-                  ),
-                  Container(
-                    height: cardSongHeight,
-                    width: cardSongTextWidth + cardSongPlayWidth,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(borderRightRadiusRight),
-                        bottomRight: Radius.circular(borderRightRadiusRight),
-                      ),
-                    ),
-                    child: Row(
-                      children: <Widget>[
-                        Container(
-                          padding: const EdgeInsets.all(3.0),
-                          width: cardSongTextWidth,
-                          height: cardSongHeight,
-                          color: Colors.transparent,
-                          child: CardSongText(),
+                      return Positioned(
+                        top: cardSongPlayPositionedTop,
+                        left: cardSongPaddingLeft,
+                        child: Transform(
+                          origin:
+                              Offset(cardSongHeight / 2, cardSongHeight / 2),
+                          transform:
+                              Matrix4.rotationX(animationFlip.value * 6.3),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Transform.rotate(
+                                angle: animationMoveDown.value * -6.3,
+                                child: CardSongImage(borderLeftRadiusLeft,
+                                    borderLeftRadiusRight),
+                              ),
+                              Container(
+                                height: cardSongHeight,
+                                width: cardTextPlaySize,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                    topRight:
+                                        Radius.circular(borderRightRadiusRight),
+                                    bottomRight:
+                                        Radius.circular(borderRightRadiusRight),
+                                  ),
+                                ),
+                                child: Stack(
+                                  children: <Widget>[
+                                    Container(
+                                      color: Color(0xffe8f6fd),
+                                      width: cardTextPlaySize *
+                                          animationListenProgress.value,
+                                    ),
+                                    Row(
+                                      children: <Widget>[
+                                        Container(
+                                          padding: const EdgeInsets.all(3.0),
+                                          width: cardSongTextWidth,
+                                          height: cardSongHeight,
+                                          color: Colors.transparent,
+                                          child: CardSongText(),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.only(
+                                              right:
+                                                  cardSongPlayIconPaddingRight),
+                                          width: cardSongPlayWidth,
+                                          height: cardSongHeight,
+                                          color: Colors.transparent,
+                                          child: CardSongPlay(
+                                            cardSongPlayWidth,
+                                            animationFlipController,
+                                            animationListenProgressController,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.only(
-                              right: cardSongPlayIconPaddingRight),
-                          width: cardSongPlayWidth,
-                          height: cardSongHeight,
-                          color: Colors.transparent,
-                          child: CardSongPlay(cardSongPlayWidth),
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  double calculateCardSongPlayWidth() =>
-      cardSongPlayWidth * (1 - animationTransformCircle.value);
-
-  double calculateCardSongTextHeight() =>
-      cardSongTextWidth * (1 - animationTransformCircle.value);
-
-  double calculateCardSongPaddingLeft() {
-    double padding = (cardSongPaddingLeftMax * animationTransformCircle.value) +
-        cardSongPaddingLeftMin;
-
-    if (padding < cardSongPaddingLeftMin)
-      padding = cardSongPaddingLeftMin;
-    else if (padding > cardSongPaddingLeftMax) padding = cardSongPaddingLeftMax;
-
-    return padding;
-  }
-
-  double calculateCardSongPlayPositionedTop() {
-    double positioned;
-
-    if (animationMoveDown.value == 0)
-      positioned = cardSongPositionedTopMin;
-    else {
-      positioned = cardSongPositionedTopMin +
-          (cardSongPositionedTopMax * animationMoveDown.value);
-    }
-
-    if (positioned >= cardSongPositionedTopMax)
-      positioned = cardSongPositionedTopMax;
-
-    return positioned;
-  }
-
-  void setBordersToDefault() {
-    borderLeftRadiusLeft = 5.0;
-    borderLeftRadiusRight = 0.0;
-    borderRightRadiusRight = 5.0;
-  }
-
-  void setBordersToAnimating() {
-    borderLeftRadiusLeft = 70.0;
-    borderLeftRadiusRight = 0.0;
-    borderRightRadiusRight = 70.0;
-  }
-
-  void setBordersToAnimated() {
-    borderLeftRadiusLeft = 70.0;
-    borderLeftRadiusRight = 70.0;
-    borderRightRadiusRight = 5.0;
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          );
+        });
   }
 }
 
-class CardSongImage extends StatelessWidget {
+class CardSongImage extends StatelessWidget with CardSongMixin {
+  double borderLeftRadiusLeft;
+  double borderLeftRadiusRight;
+
+  CardSongImage(this.borderLeftRadiusLeft, this.borderLeftRadiusRight);
+
   @override
   Widget build(BuildContext context) {
     return Hero(
@@ -217,18 +204,41 @@ class CardSongText extends StatelessWidget {
   }
 }
 
-class CardSongPlay extends StatelessWidget {
+class CardSongPlay extends StatelessWidget with CardSongMixin {
   double widthCardPlay;
+  AnimationController animationFlipController;
+  AnimationController animationListenProgressController;
 
-  CardSongPlay(this.widthCardPlay);
+  CardSongPlay(
+    this.widthCardPlay,
+    this.animationFlipController,
+    this.animationListenProgressController,
+  );
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
-      Icons.play_circle_outline,
-      size: widthCardPlay <= cardSongPlayIconPaddingRight
-          ? 0
-          : widthCardPlay - cardSongPlayIconPaddingRight,
+    return InkWell(
+      onTap: () {
+        animationListenProgressController.forward();
+        animationListenProgressController.addListener(() {
+          if (animationListenProgressController.status ==
+              AnimationStatus.completed) {
+            animationFlipController.forward();
+            animationListenProgressController.reset();
+            animationFlipController.addListener(() {
+              if (animationFlipController.status == AnimationStatus.completed) {
+                animationFlipController.reset();
+              }
+            });
+          }
+        });
+      },
+      child: Icon(
+        Icons.play_circle_outline,
+        size: widthCardPlay <= cardSongPlayIconPaddingRight
+            ? 0
+            : widthCardPlay - cardSongPlayIconPaddingRight,
+      ),
     );
   }
 }

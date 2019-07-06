@@ -37,8 +37,11 @@ class SongList extends StatelessWidget {
               children: <Widget>[
                 InkWell(
                   onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => AlbumPage()));
+                    Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                            pageBuilder: (context, animation, animation2) =>
+                                AlbumPage()));
                   },
                   child: SongListTile(
                     image:
